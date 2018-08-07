@@ -45,8 +45,8 @@ contract BitcademyVesting is Ownable {
     start = _start;
   }
 
-  modifier onlyMember(address memberAddr) {
-    require(members[memberAddr]);
+  modifier onlyMember(address _memberAddress) {
+    require(members[_memberAddress] == true);
       _;
   }
 
