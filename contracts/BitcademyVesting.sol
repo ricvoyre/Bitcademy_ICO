@@ -81,23 +81,20 @@ contract BitcademyVesting is Ownable {
 
     require(numReleases[_member] <= Releases);
     if (numReleases[_member] == 0){
-     nextRelease[_member] = interval.add(cliff);
+    require(block.timestamp >= interval.add(cliff));
      released = released.add(unreleased);
      unreleased = ReleaseCap.div(noOfMembers.mul(Releases));
      //unreleased =  unreleased.div(noOfMembers);
-
      _token.transfer(_member, unreleased);
-
      numReleases[_member] = numReleases[_member].add(1);
+     nextRelease[_member] = interval.add(cliff).add(interval);
    }
    else if (numReleases[_member] > 0){
-     require(nextRelease[_member] >= block.timestamp);
+     require(block.timestamp >= nextRelease[_member] );
      released = released.add(unreleased);
      unreleased = ReleaseCap.div(noOfMembers.mul(Releases));
      //unreleased =  unreleased.div(noOfMembers);
-
      _token.transfer(_member, unreleased);
-
      numReleases[_member] = numReleases[_member].add(1);
      nextRelease[_member] = nextRelease[_member].add(interval);
    }
