@@ -1,6 +1,7 @@
 pragma solidity ^0.4.23;
 
 import "./BitcademyToken.sol";
+import "./RefundVault.sol";
 //import "./Ownable.sol";
 /**
  * @title Crowdsale
@@ -31,6 +32,8 @@ contract PreICOBitcademyGold is Ownable{
 
   // Save Token Holder addresses
   address public tokenHolder;
+
+  RefundVault public vault;
 
   mapping(address => bool) public whitelist;
 
@@ -74,6 +77,7 @@ contract PreICOBitcademyGold is Ownable{
     uint256 amount
   );
 
+
   /**
    * @param _rate No of tokens per ether
    * @param _wallet Address where collected funds will be forwarded to
@@ -87,6 +91,7 @@ contract PreICOBitcademyGold is Ownable{
     require(_openingTime >= block.timestamp);
     require(_closingTime >= _openingTime);
 
+    vault = new RefundVault(wallet);
     rate = _rate;
     wallet = _wallet;
     token = _token;
@@ -266,10 +271,12 @@ contract PreICOBitcademyGold is Ownable{
     // optional override
   }
 
+
   /**
    * @dev Override to extend the way in which ether is converted to tokens.
    * @param _weiAmount Value in wei to be converted into tokens
-   * @return Token price in weis
+   * @return Token
+    price in weis
    */
   function _getTokenAmount(uint256 _weiAmount)
     internal view returns (uint256)
@@ -280,11 +287,16 @@ contract PreICOBitcademyGold is Ownable{
   /**
    * @dev Determines how ETH is stored/forwarded on purchases.
    */
-  function _forwardFunds() internal {
+  /*function _forwardFunds() internal {
     wallet.transfer(msg.value);
-  }
+  }*/
 
   function setRate(uint256 _rate) public onlyOwner{
     rate = _rate;
   }
+
+  function _forwardFunds() internal {
+    vault.deposit.value(msg.value)(msg.sender);
+  }
+
 }
